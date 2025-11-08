@@ -1,7 +1,9 @@
 from random import randint
 import requests
 import random
-
+import datetime
+import time
+from datetime import datetime, timedelta
 class Pokemon:
     pokemons = {}
     # Инициализация объекта (конструктор)
@@ -16,6 +18,7 @@ class Pokemon:
         self.move = self.get_move()
         self.hp = randint(50,100)
         self.power = randint(50,100)
+        self.last_feed_time = datetime.now()
         Pokemon.pokemons[pokemon_trainer] = self
 
       
@@ -62,12 +65,23 @@ class Pokemon:
 
     # Метод класса для получения информации
     def info(self):
-        return f"Имя твоего покеомона: {self.name},Хп: {self.stats}, Сила: {self.power}"
+        return f"Имя твоего покеомона: {self.name},Хп: {self.hp}, Сила: {self.power}"
 
     # Метод класса для получения картинки покемона
     def show_img(self):
         return self.img
     
+    def feed(self, feed_interval = 20, hp_increase = 10 ):
+        current_time = datetime.now()  
+        delta_time = timedelta(seconds=feed_interval)  
+        if (current_time - self.last_feed_time) > delta_time:
+            self.hp += hp_increase
+            self.last_feed_time = current_time
+            return f"Здоровье покемона увеличено. Текущее здоровье: {self.hp}"
+        else:
+            return f"Следующее время кормления покемона: {self.last_feed_time + delta_time}"
+
+
     #def show_stats(self):
     #   return f'Хп: {self.stats}, Сила: {self.power}' 
     
@@ -99,16 +113,26 @@ class Fighter(Pokemon):
     def info(self):
         return 'У вас покемон-боец\n' + super().info()
     
-class Wizard(Pokemon):
-    pass
+    def feed(self):
+        return super().feed(feed_interval=5)
 
+
+class Wizard(Pokemon):
+    def info(self):
+        return 'У вас покемон-волшебник\n' + super().info()
+
+    def feed(self):
+        return super().feed(hp_increase=20)
 
 if __name__ == '__main__':
     wizard = Wizard("username1")
     fighter = Fighter("username2")
-
+    print(wizard.info())
+    time.sleep(21)
+    print(wizard.feed())
     print(wizard.info())
     print()
     print(fighter.info())
-    print()
-    print(fighter.attack(wizard))
+    time.sleep(11)
+    print(fighter.feed())
+    print(fighter.info())
